@@ -5,7 +5,9 @@ import { getCompanies } from './services/company-requests';
 
 function App() {
 
-  getCompanies();
+  useEffect(() => {
+    getCompanies();
+  })
   return (
     <div className="App">
       <header className="App-header">
