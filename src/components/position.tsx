@@ -2,19 +2,9 @@ import { Backdrop, Button } from "@mui/material";
 import { Box } from "@mui/system"
 import { FC, useState } from "react"
 import '../App.css';
+import { IPosition } from "../services/types";
+import { EditPositionBox } from "./edit-position";
 
-type PositionType = {
-    _id: string,
-    companyID: number,
-    year: number,
-    currentlyOpen: boolean,
-    positionType: string,
-    term: number
-};
-
-interface IPosition {
-    position: PositionType
-}
 
 // requires prop positionObject
 export const PositionBox: FC<IPosition> = (props) => {
@@ -38,7 +28,7 @@ export const PositionBox: FC<IPosition> = (props) => {
             sx={{color: '#fff'}}
             open={open}>
                 <Box className="positionBox__positionMenu">
-                    {props.position.companyID}
+                    <EditPositionBox position={props.position}/>
 
                     <br /><Button onClick={handleClose}>Close</Button>
                 </Box>

@@ -64,7 +64,6 @@ function App() {
       value={currentCompanyState}>
         {companies}
       </Select>
-
       <div>
         {currentPositionsState}
       </div>
