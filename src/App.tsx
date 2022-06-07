@@ -41,7 +41,6 @@ function App() {
             <PositionBox position={response[i]} />
           )
         }
-        console.log(response)
         setcurrentPositionsState(positions);
       })
     }
@@ -60,11 +59,12 @@ function App() {
     <div className="App">
 
       <Select
-      onChange={(event: SelectChangeEvent<string>) => setCurrentCompanyState(event.target.value)}
-      value={currentCompanyState}>
+        onChange={(event: SelectChangeEvent<string>) => setCurrentCompanyState(event.target.value)}
+        value={currentCompanyState}>
         {companies}
       </Select>
-      <div>
+
+      <div className='current__positions'>
         {currentPositionsState}
       </div>
 

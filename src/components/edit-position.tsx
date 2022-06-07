@@ -1,7 +1,7 @@
 // box used to hold data for editing a position
-import { Box, FormControlLabel, FormGroup, Switch, TextField } from "@mui/material";
-import { FC, useState } from "react";
-import { IPosition } from "../services/types";
+import { Box, FormControlLabel, FormGroup, FormLabel, MenuItem, Select, SelectChangeEvent, Switch, TextField, Button } from "@mui/material";
+import { FC, useState, useEffect } from "react";
+import { IPosition, Season } from "../services/types";
 
 
 export const EditPositionBox: FC<IPosition> = (props) => {
@@ -11,30 +11,96 @@ export const EditPositionBox: FC<IPosition> = (props) => {
     const [ positionYearState, setPositionYearState ] = useState(props.position.year);
     const [ positionTermState, setPositionTermState ] = useState(props.position.term);
 
-    
+    // get list of interviews for a position on load
+    useEffect(() => {
+        fetch('https://internify-api-test.herokuapp.com/getInterviews',{
+        method: "POST",
+        headers: {
+            'accept': 'application/json',
+            'Content-Type': "application/json"
+        },
+        body: JSON.stringify({
+            "positionID": props.position._id
+        })})
+        .then(response => response.json())
+        .then(response => {
+            console.log(props.position._id);
+            for (let i in response) {
+              console.log(response[i]);
+          }})
+    }, [])
+
+    // function to update position in DB
+    // params: requeired: optional(must have one )year, term(1 = Spring, 2 = summer, 3 = fall, 4 = winter), positionType, currentlyOpen(true or false)
+    const handlePositionUpdate = () => {
+        fetch('https://internify-api-test.herokuapp.com/updatePosition',{
+        method: "PUT",
+        headers: {
+            'accept': 'application/json',
+            'Content-Type': "application/json"
+        },
+        body: JSON.stringify({
+            "positionID": props.position._id,
+            "year": positionYearState,
+            "term": positionTermState,
+            "positionType": positionTypeState,
+            "currentlyOpen": currentlyOpenState
+        })})
+        .then(response => {
+            if(response.status === 200) {
+                alert("Successfully Updated Position");
+            }
+            else {
+                alert("Error Updating Position")
+            }
+        })
+    }
 
     return (
-        <Box className="positionBox__positionMenu__positionInfo">
-            {positionTypeState} <br />
-            {String(currentlyOpenState)} <br />
-            {positionYearState} <br />
-            {positionTermState} <br />
+        <Box>
+            <FormGroup className="positionBox__positionMenu">
+                <FormLabel>
+                    <TextField
+                        fullWidth
+                        variant="standard"
+                        value={positionTypeState}
+                        onChange={(event: React.ChangeEvent<HTMLInputElement>) => setPositionTypeState(event.target.value)}
+                    />
+                </FormLabel>
 
-            <FormGroup className="positionBox__positionMenu__positionInfo__formGroup">
-                <TextField
-                variant="standard"
-                value={positionTypeState}
-                onChange={(event: React.ChangeEvent<HTMLInputElement>) => setPositionTypeState(event.target.value)}
-            />
+                <FormControlLabel
+                    className="positionBox__positionMenu__currentlyOpen"
+                    control = {
+                        <Switch checked={currentlyOpenState} onChange={(event: React.ChangeEvent<HTMLInputElement>) => setCurrentlyOpenState(event.target.checked)}/>
+                    }
+                    label = "Currently Open"
+                    labelPlacement="start"
+                />
 
-            <FormControlLabel 
-                control = {
-                    <Switch checked={currentlyOpenState} onChange={(event: React.ChangeEvent<HTMLInputElement>) => setCurrentlyOpenState(event.target.checked)}/>
-                }
-                label = "Currently Open"
-                labelPlacement="start"
-            />
-            </FormGroup>
-        </Box>
+                <FormLabel>
+                    <TextField
+                        required
+                        variant="standard"
+                        value={positionYearState}
+                        type="number"
+                        onChange={(event: React.ChangeEvent<HTMLInputElement>) => setPositionYearState(parseInt(event.target.value))}
+                    />
+                </FormLabel>
+
+                <Select
+                    required
+                    value={positionTermState}
+                    onChange={(event: SelectChangeEvent<number>) => setPositionTermState(event.target.value as number)}
+                >
+                    <MenuItem value={1}>{Season[1]}</MenuItem>
+                    <MenuItem value={2}>{Season[2]}</MenuItem>
+                    <MenuItem value={3}>{Season[3]}</MenuItem>
+                    <MenuItem value={4}>{Season[4]}</MenuItem>
+                </Select>
+                
+                <Button onClick={handlePositionUpdate}>Update</Button>
+        </FormGroup>
+    </Box>
+
     )
 }
